@@ -1,0 +1,23 @@
+# Environments
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+
+# ADK and DB
+.adk/
+chroma_db/
+.env
+
+# Local temp
+*.csv
+!Sample\ Data/*.csv
+*.txt
+!Sample\ Data/*.txt
