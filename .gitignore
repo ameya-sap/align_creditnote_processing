@@ -18,6 +18,5 @@ chroma_db/
 
 # Local temp
 *.csv
-!Sample\ Data/*.csv
 *.txt
 !Sample\ Data/*.txt
