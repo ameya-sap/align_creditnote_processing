@@ -14,7 +14,7 @@ def fetch_sap_export(inv_number: str) -> dict:
     # NaN and formatting cleanup
     df = df.replace({np.nan: None})
     
-    row = df[df['Reference Billing Document'].astype(str) == str(inv_number)]
+    row = df[df['Reference Document Number VBAK-XBLNR'].astype(str) == str(inv_number)]
     if not row.empty:
         return row.iloc[0].to_dict()
     return {"error": f"Invoice {inv_number} not found in SAP"}
