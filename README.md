@@ -70,3 +70,63 @@ You can also interact with the Agent system via a generated Web Chat interface. 
 adk web
 ```
 This will launch a local server (typically at `http://localhost:8080`) where you can paste the prompt and view execution traces.
+
+## Datasets and Mock Data
+
+This system simulates a complex multi-tool enterprise environment by relying on the following mock files contained in the `Sample Data` folder:
+- **`File1-SFDC-Credit-Request-Ticket.pdf`**: Represents the initial trigger for the workflow. It is an unstructured ticket export from Salesforce containing a description of the customer's request, reason for credit (CuCo contract confusion), requested discount percentages, and a table of affected Sales Orders (SOs). 
+- **`Policy_Documents/` (PDFs)**: Contains the text for regional Master Agreements (e.g., CuCo-2025 Benelux). These are embedded into ChromaDB and queried by the Validation Agent to confirm the request aligns with contractual obligations before approving credits.
+- **`File5-SAP-Transactional-Export.csv`**: Simulates the system of record (SAP backend). It holds the raw, 29-column transaction details of historical invoices. The SAP Agent searches this file to fetch the original pricing, material numbers, and other mandatory fields required for the final ZMEMO export.
+- **`File6-Prior-Credit-History-Log.csv`**: Simulates a historical ledger of previously issued credit memos. Searched by the SAP Agent to prevent processing duplicate credits for the same order.
+
+## Complete Agent Workflow
+
+The orchestrated execution of the system is managed by the root `SequentialAgent`. Here is the exact lifecycle of an SFDC ticket being processed:
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Root as Root Orchestrator
+    participant Intake as Intake Agent
+    participant Val as Validation Agent
+    participant SAP as SAP Agent
+    participant Calc as Calculation Agent
+    participant SFDC as Salesforce Agent
+    participant Chroma as ChromaDB (Policies)
+    
+    User->>Root: Prompt with SFDC Ticket (e.g. 61860676)
+    Root->>Intake: Extract Sales Orders
+    Note over Intake: Uses Tool: extract_sales_orders_from_pdf
+    Intake-->>Root: Structured JSON List of Requested Orders
+    
+    Root->>Val: Validate Business Logic
+    Val->>Chroma: Query Policy Documents (RAG)
+    Note over Val: Tool: query_policy, map_reason_to_category
+    Chroma-->>Val: Context (CuCo terms & rules)
+    Val-->>Root: Approval / Rejection Summary
+    
+    Root->>SAP: Fetch System of Record Data
+    Note over SAP: Tools: fetch_sap_export, check_prior_credits
+    SAP-->>Root: Raw 29-Column Invoice Dictionaries & Prior Credit Flags
+    
+    Root->>Calc: Calculate Discounts & Generate ZMEMO
+    Note over Calc: Filter out duplicates/invalid invoices
+    Note over Calc: Tool: calculate_discount, generate_zmemo_csv
+    Calc-->>Root: output_zmemo.csv File Path
+    
+    Root->>SFDC: Mock Update System of Record
+    Note over SFDC: Tool: update_sfdc_status, send_email_notification
+    SFDC-->>Root: Finalized Output
+    Root->>User: Credit Processing Summary
+```
+
+## ZMEMO Output Format
+
+The final outcome of a successful run is the `output_zmemo.csv` file generated at the project root. This CSV is perfectly formatted as a 29-column SAP-compatible batch upload payload.
+
+The Calculation Agent is explicitly instructed to synthesize required "green fields" that are missing from the raw SAP data. For example:
+- **Sales Document Type VBAK-AUART** is hardcoded as `Z09` (Standard Credit Memo).
+- **Serial #** is sequentially counted for each valid exported row.
+- **Reference Billing Document** is mapped directly from the verified invoice number.
+- **Order reason VBAK-AUGRU** is generated as `C35` (Goodwill Exception).
+- **ZPR0 KOMV-KBETR(02)** is dynamically calculated based on the SAP original net amount multiplied by the requested percentage discount from the ticket.
