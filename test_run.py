@@ -1,13 +1,8 @@
-import asyncio
+import subprocess
 import os
 import sys
 
-# Ensure the root directory is in the Python path for imports
-sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
-
-from agent import root_agent
-
-async def main():
+def main():
     print("Starting agent flow...")
     print("Executing 'Analyze SFDC Ticket #61860676'...\n")
     
@@ -15,8 +10,18 @@ async def main():
     if os.path.exists(".adk/session.db"):
         os.remove(".adk/session.db")
         
-    async for event in root_agent.run_async("Analyze SFDC Ticket #61860676"):
-        print(f"[{event.author}]: {event.text}")
+    # We run the adk CLI directly, piping in the input commands needed.
+    # The 'exit' command ensures it closes cleanly after processing.
+    process = subprocess.Popen(
+        ["adk", "run", "."],
+        stdin=subprocess.PIPE,
+        text=True
+    )
+    
+    try:
+        process.communicate(input="Analyze SFDC Ticket #61860676\nexit\n")
+    except KeyboardInterrupt:
+        process.kill()
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
