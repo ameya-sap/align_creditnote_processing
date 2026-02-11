@@ -130,3 +130,17 @@ The Calculation Agent is explicitly instructed to synthesize required "green fie
 - **Reference Billing Document** is mapped directly from the verified invoice number.
 - **Order reason VBAK-AUGRU** is generated as `C35` (Goodwill Exception).
 - **ZPR0 KOMV-KBETR(02)** is dynamically calculated based on the SAP original net amount multiplied by the requested percentage discount from the ticket.
+
+## Application Demo
+
+### Knowledge source and Input
+The Command Center displays PDF reading capabilities (e.g. Master Policies) alongside the raw, unprocessed Mock SAP CSV Database. 
+![Knowledge Source and Input](assets/demo/Credit%20Note%20Automation%20-%20Agent%20Demo%20-Knowledge%20Source.gif)
+
+### Agent Live Execution Stream
+Once "Analyze" is clicked, you can visually observe the real-time thought processing as the Sequential Agent breaks down tasks, executes database lookups, and dynamically queries the local vector database.
+![Agent Live Execution Stream](assets/demo/Credit%20Note%20Automation%20-%20Agent%20Demo%20-Stream%20Output.gif)
+
+### Generated ZMEMO Batch Interface
+The pipeline concludes by outputting a properly formatted batch CSV holding the newly calculated values mapped cleanly to synthetic SAP columns (highlighted in green).
+![Generated ZMEMO Batch Interface](assets/demo/Credit%20Note%20Automation%20-%20Agent%20Demo%20-Memo.gif)
