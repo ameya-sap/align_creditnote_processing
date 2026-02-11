@@ -144,3 +144,17 @@ Once "Analyze" is clicked, you can visually observe the real-time thought proces
 ### Generated ZMEMO Batch Interface
 The pipeline concludes by outputting a properly formatted batch CSV holding the newly calculated values mapped cleanly to synthetic SAP columns (highlighted in green).
 ![Generated ZMEMO Batch Interface](assets/demo/Credit%20Note%20Automation%20-%20Agent%20Demo%20-Memo.gif)
+
+### How to Run the Demo UI
+
+To launch the Streamlit dashboard locally, ensure your virtual environment is activated and `streamlit` is installed:
+
+```bash
+# Activate virtual environment
+source .venv/bin/activate
+# Install UI dependencies if needed
+pip install -r requirements.txt
+# Run the application
+streamlit run app.py
+```
+The Command Center will open in your default web browser automatically.
