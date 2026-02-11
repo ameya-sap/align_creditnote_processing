@@ -17,12 +17,30 @@ def show_pdf(file_path):
     pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="600" type="application/pdf"></iframe>'
     st.markdown(pdf_display, unsafe_allow_html=True)
 
+GREEN_FIELDS = [
+    "Serial #",
+    "Sales Document Type VBAK-AUART",
+    "Reference Billing Document",
+    "Billing date VBKD-FKDAT MM/DD/AAAA",
+    "ZPR0 KOMV-KBETR(02)",
+    "Order reason VBAK-AUGRU",
+    "SFDC Ticket Number ZAVBAK-ZZSFDC_TKT",
+    "SAGA Contract Number"
+]
+
+def map_green_columns(s):
+    # Applies green background to columns managed by the Agent
+    if s.name in GREEN_FIELDS:
+        return ['background-color: rgba(46, 125, 50, 0.4)'] * len(s)
+    return [''] * len(s)
+
 def show_csv(file_path):
     if not os.path.exists(file_path):
         st.error(f"File not found: {file_path}")
         return
     df = pd.read_csv(file_path)
-    st.dataframe(df, use_container_width=True, height=600)
+    styled_df = df.style.apply(map_green_columns, axis=0)
+    st.dataframe(styled_df, use_container_width=True, height=600)
 
 def run_agent():
     if os.path.exists(".adk/session.db"):
@@ -54,8 +72,8 @@ TICKET_OPTIONS = {
 }
 
 KNOWLEDGE_OPTIONS = {
-    "File2-CuCo-2025-Master-Policy.pdf": "Policy_Documents/File2-CuCo-2025-Master-Policy.pdf",
-    "File4-Exception-&-Goodwill-Approval-Matrix.pdf": "Policy_Documents/File4-Exception-&-Goodwill-Approval-Matrix.pdf",
+    "File2-CuCo-2025-Master-Policy.pdf": "Sample Data/File2-CuCo-2025-Master-Policy.pdf",
+    "File4-Exception-&-Goodwill-Approval-Matrix.pdf": "Sample Data/File4-Exception-&-Goodwill-Approval-Matrix.pdf",
     "File5-SAP-Transactional-Export.csv": "Sample Data/File5-SAP-Transactional-Export.csv",
     "File6-Prior-Credit-History-Log.csv": "Sample Data/File6-Prior-Credit-History-Log.csv",
 }
@@ -120,7 +138,8 @@ st.subheader("Generated ZMEMO Batch Interface")
 if analyze_btn:
     if os.path.exists("output_zmemo.csv"):
         df_out = pd.read_csv("output_zmemo.csv")
-        st.dataframe(df_out, use_container_width=True)
+        styled_out = df_out.style.apply(map_green_columns, axis=0)
+        st.dataframe(styled_out, use_container_width=True)
         
         col_metrics1, col_metrics2, col_metrics3 = st.columns(3)
         col_metrics1.metric("Rows Processed", len(df_out))
