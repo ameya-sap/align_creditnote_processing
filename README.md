@@ -2,7 +2,9 @@
 
 This prototype demonstrates a multi-agent system built using the [Google Agent Development Kit (ADK) Python SDK](https://github.com/google/agent-development-kit). The system automates the manual "Batch Credit Request" process by digesting Salesforce (SFDC) tickets, validating credit eligibility against policies stored in a ChromaDB RAG system, fetching data from SAP exports, calculating the appropriate discounts, and generating a ZMEMO row upload file.
 
-## Architecture
+## Architecture and Tool Design
+
+![Architecture and Tool Design](assets/demo/Achitecture%20and%20Tool%20Design.png)
 
 The system is constructed as a `SequentialAgent` pipeline orchestrated by a root `intake_agent`:
 1.  **Intake Agent (`agent.py`)**: Primary entry point. Extracts the list of Sales Orders and issue details from the SFDC ticket PDF.
@@ -79,7 +81,9 @@ This system simulates a complex multi-tool enterprise environment by relying on 
 - **`File5-SAP-Transactional-Export.csv`**: Simulates the system of record (SAP backend). It holds the raw, 29-column transaction details of historical invoices. The SAP Agent searches this file to fetch the original pricing, material numbers, and other mandatory fields required for the final ZMEMO export.
 - **`File6-Prior-Credit-History-Log.csv`**: Simulates a historical ledger of previously issued credit memos. Searched by the SAP Agent to prevent processing duplicate credits for the same order.
 
-## Complete Agent Workflow
+## Agent Flow
+
+![Agent Design](assets/demo/Agent%20Design.png)
 
 The orchestrated execution of the system is managed by the root `SequentialAgent`. Here is the exact lifecycle of an SFDC ticket being processed:
 
